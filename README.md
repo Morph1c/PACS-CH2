@@ -1,9 +1,13 @@
-# Compile and run the code
+# Getting started
+You can clone the code into your local repo as:
+```shell
+git clone git@github.com:Morph1c/PACS-CH2.git 
+```
+Then for compile the code, simply run:
 ```shell
 make 
 ```
-
-will compile the code. Afterwards you can run the code using the matrix-market file
+Afterwards you can run the code using the matrix-market file
 
 ```sh
 ./main
@@ -76,10 +80,7 @@ even further speed-ups.
 - Make the large benchmark test more generic.
 - Extension: work with ``mutable``.
 
-# Questions to the tutor/professor
-- Internally, I was working with ``constexpr`` all the time. Alternatively, one could
-have worked with two template-classes each specializing one of the storage options. Which
-solution is here preferred and why?
+
 
 # Personal Learnings
 - Class member functions can only be template specialized,
