@@ -15,9 +15,7 @@
  */
 template <class T, StorageOrder Store>
 void Matrix<T, Store>::_compress_col() {
-#ifdef DEBUG
-  std::cout << "Using COL-MAJOR compression to CSC.\n";
-#endif
+
   // NOTE(Assumption): we assume the dict is orderd in (second,first) way
   // so (1,2) is after (2,1) in the ordering
 
@@ -34,11 +32,7 @@ void Matrix<T, Store>::_compress_col() {
   _vec2.resize(num_non_zeros);
   _values.resize(num_non_zeros);
 
-#ifdef DEBUG
-  std::cout << "num_rows = " << num_cols << "\n";
-  std::cout << "vec2.size() = " << _vec2.size() << "\n";
-  std::cout << "values.size() = " << _values.size() << "\n";
-#endif
+
 
   std::size_t num_non_zero = 0;
   // idea: not use conditional jumps
@@ -63,9 +57,7 @@ void Matrix<T, Store>::_compress_col() {
  */
 template <class T, StorageOrder Store>
 void Matrix<T, Store>::_uncompress_col() {
-#ifdef DEBUG
-  std::cout << "Using COL-MAJOR uncompression.\n";
-#endif
+
   // vec1 of length #cols + 1 -> col indices
   // vec2 of length #non-zero-elements -> row index
   // _values: length #non-zero-elements -> actual values
@@ -98,14 +90,10 @@ void Matrix<T, Store>::_uncompress_col() {
 template <class T, StorageOrder Store>
 const T Matrix<T, Store>::_find_compressed_element_col(std::size_t row,
                                                        std::size_t col) const {
-#ifdef DEBUG
-  std::cout << "Using COL-MAJOR _find_compressed_element() const version.\n";
-#endif
+
   for (std::size_t row_idx = _vec1[col]; row_idx < _vec1[col + 1]; ++row_idx) {
     if (_vec2[row_idx] == row) {
-#ifdef DEBUG
-      std::cout << "Found element.";
-#endif
+
       return _values[row_idx];
     }
   }
@@ -125,15 +113,10 @@ const T Matrix<T, Store>::_find_compressed_element_col(std::size_t row,
 template <class T, StorageOrder Store>
 T& Matrix<T, Store>::_find_compressed_element_col(std::size_t row,
                                                   std::size_t col) {
-#ifdef DEBUG
-  std::cout
-      << "Using COL-MAJOR _find_compressed_element() non-const version.\n";
-#endif
+
   for (std::size_t row_idx = _vec1[col]; row_idx < _vec1[col + 1]; ++row_idx) {
     if (_vec2[row_idx] == row) {
-#ifdef DEBUG
-      std::cout << "Found element.";
-#endif
+
       return _values[row_idx];
     }
   }
@@ -175,9 +158,7 @@ std::vector<T> Matrix<T, Store>::_matrix_vector_col(std::vector<T> vec) const {
  */
 template <class T, StorageOrder Store>
 T Matrix<T, Store>::_max_norm_compressed_col() const {
-#ifdef DEBUG
-  std::cout << "Max-Norm compressed-COL.\n";
-#endif
+
   std::size_t num_rows = *max_element(std::begin(_vec2), std::end(_vec2));
   std::vector<T> sum_abs_per_col(num_rows, 0);
   for (std::size_t row_idx = 0; row_idx < _vec2.size(); ++row_idx) {
@@ -195,9 +176,7 @@ T Matrix<T, Store>::_max_norm_compressed_col() const {
  */
 template <class T, StorageOrder Store>
 T Matrix<T, Store>::_one_norm_compressed_col() const {
-#ifdef DEBUG
-  std::cout << "One-Norm compressed-COLROW.\n";
-#endif
+
   T res = 0;
   for (std::size_t col_idx = 0; col_idx < _vec1.size() - 1; ++col_idx) {
     // get the row, according to this col

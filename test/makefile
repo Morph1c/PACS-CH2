@@ -1,6 +1,6 @@
 CXX      ?= g++
 CXXFLAGS ?= -std=c++20
-CPPFLAGS ?= -O3 -Wall -I"../include"
+CPPFLAGS ?= -O3 -Wall -I"../src"
 LINK.o := $(LINK.cc) # implicit flag to enable the linking
 
 # Set the default Eigen include path

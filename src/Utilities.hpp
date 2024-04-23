@@ -1,10 +1,15 @@
-#ifndef STORAGE_ORDER_HPP
-#define STORAGE_ORDER_HPP
+#ifndef UTILITY_HPP
+#define UTILITY_HPP
 #include <iostream>
 #include <random>
 #include <vector>
 namespace algebra {
+/**
+ * @brief Enum class to define the storage order of the matrix and the type of norm to be computed.
+ * 
+ */
 enum StorageOrder { row, col };
+
 enum NormOrder { frob, one, max };
 
 /**
@@ -22,8 +27,7 @@ struct ColOrderComparator {
 };
 
 /**
- * @brief Default, reimplementing lexicographical sorting, just for the sake
- * of completeness.
+ * @brief Default ordering relation for std::map but reimplementing for sake of semplicity
  * 
  * @tparam T Type of the entries.
  */
