@@ -1,5 +1,5 @@
-#ifndef MY_SPARSE_MATRIX_HPP
-#define MY_SPARSE_MATRIX_HPP
+#ifndef MATRIX_SPARSE_HPP
+#define MATRIX_SPARSE_HPP
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -12,10 +12,18 @@
 #include "Utilities.hpp"
 
 namespace algebra {
+/**
+ * @brief Class representing a sparse matrix, which can be stored in row or
+ * column major format. The matrix can be compressed into a compressed sparse
+ * row (CSR) or compressed sparse column (CSC) format.
+ *
+ * @tparam T Type of the entries of the matrix.
+ * @tparam Store Storage order of the matrix, either row or column major.
+ */
 template <class T, StorageOrder Store = StorageOrder::row>
 class Matrix {
  public:
-  using EntryValuesMap = std::map<
+  using matrix_type = std::map<
       std::array<std::size_t, 2>, T,
       std::conditional_t<Store == StorageOrder::row, RowOrderComparator<T>,
                          ColOrderComparator<T>>>;
@@ -25,10 +33,10 @@ class Matrix {
    *
    * @param entry_value_map Mapping with (row, col) -> value, the comparison
    * operator and thus the type of the mapping has to be based on the storage
-   * order of the matrix. Simply use Matrix::EntryValuesMap type to construct
+   * order of the matrix. Simply use Matrix::matrix_type type to construct
    * the mapping corectly.
    */
-  Matrix(EntryValuesMap& entry_value_map)
+  Matrix(matrix_type& entry_value_map)
       : _is_compressed(false),
         _entry_value_map(entry_value_map),
         _vec1(),
@@ -400,7 +408,7 @@ class Matrix {
 
   // class attributes
   bool _is_compressed;
-  EntryValuesMap& _entry_value_map;
+  matrix_type& _entry_value_map;
 
   // internal representations of the values for the compressed formats
   std::vector<std::size_t> _vec1;
@@ -415,4 +423,6 @@ class Matrix {
 // ======= COL MAJOR OPERATIONS =======
 #include "Matrix_col_impl.hpp"
 }  // namespace algebra
+
+
 #endif

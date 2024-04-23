@@ -8,18 +8,16 @@ enum StorageOrder { row, col };
 enum NormOrder { frob, one, max };
 
 /**
- * @brief Compare two arrays of size 2 based on their second argument.
- * 
- * @tparam T Type of the entries.
+ * @brief Introduce an ordering relation for an arrays of two entries.
+ *        This can be only a partial ordering relation
+ * @tparam T is the type of the entries of the array
  */
 template <typename T>
 struct ColOrderComparator {
-  bool operator()(const std::array<std::size_t, 2>& a,
-                  const std::array<std::size_t, 2>& b) const {
-    // #ifdef DEBUG
-    //     std::cout << "Col order comparator\n";
-    // #endif
-    return (a[1] < b[1]) || ((a[1] == b[1]) && (a[0] < b[0]));
+  bool operator()(const std::array<std::size_t, 2>& x,
+                  const std::array<std::size_t, 2>& y) const {
+
+    return (x[1] < y[1]) || ((x[1] == y[1]) && (x[0] < y[0]));
   }
 };
 
@@ -31,12 +29,10 @@ struct ColOrderComparator {
  */
 template <typename T>
 struct RowOrderComparator {
-  bool operator()(const std::array<std::size_t, 2>& a,
-                  const std::array<std::size_t, 2>& b) const {
-    // #ifdef DEBUG
-    //     std::cout << "Row compator is used\n";
-    // #endif
-    return (a[0] < b[0]) || ((a[0] == b[0]) && (a[1] < b[1]));
+  bool operator()(const std::array<std::size_t, 2>& x,
+                  const std::array<std::size_t, 2>& y) const {
+    
+    return (x[0] < y[0]) || ((x[0] == y[0]) && (x[1] < y[1]));
   }
 };
 
