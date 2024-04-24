@@ -24,7 +24,7 @@ make debug
 ```
 
 ## Provided test cases
-Each test case is a template function and thus applied to both storage orders.
+It's provided a benchmark template class where you can test:
 
 - ``test_file_reader``: check whether the file is correctly read and the mapping is correctly extracted.
 - ``test_basic_operation``: Read the matrix, test setter and getter methods,
@@ -81,9 +81,3 @@ even further speed-ups.
 - Extension: work with ``mutable``.
 
 
-
-# Personal Learnings
-- Class member functions can only be template specialized,
-if the class itself is already specialized.
-- Despite some methods only use ``O(1)`` operations, contiguous memory yields
-significant speedups.
