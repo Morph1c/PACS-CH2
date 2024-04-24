@@ -21,23 +21,24 @@ void Matrix<T, Store>::_compress_row() {
   // vec2 of length #non-zero-elements -> column index
   // _values: length #non-zero-elements -> actual values
 
-  // #rows + 1 = highest row-number + 2
+  // since we are ordering by rows then the last element of the entry_value_map is the highest row number
+  // so we have to add 2 since it start with 0 to get the number of rows
   std::size_t num_rows = _entry_value_map.rbegin()->first[0] + 2;
-  _vec1.resize(num_rows, 0);
+  _inner.resize(num_rows, 0);
 
   // number of non-zeros are simply the number of map entries
   std::size_t num_non_zeros = _entry_value_map.size();
-  _vec2.resize(num_non_zeros);
+  _outer.resize(num_non_zeros);
   _values.resize(num_non_zeros);
 
   std::size_t num_non_zero = 0;
   // idea: not use conditional jumps
   for (const auto& [k, v] : _entry_value_map) {
-    _vec2[num_non_zero] = k[1];  // add the column index
+    _outer[num_non_zero] = k[1];  // add the column index
     _values[num_non_zero] = v;   // add the value
     // we just update the count of non-zeros at the curr. row-idx
     // note that the row-idx is automatically incremented
-    _vec1[k[0] + 1] = ++num_non_zero;
+    _inner[k[0] + 1] = ++num_non_zero;
   }
 
   // save memory and set flags
@@ -57,19 +58,19 @@ void Matrix<T, Storage>::_uncompress_row() {
   // vec1 of length #rows + 1 -> row indices
   // vec2 of length #non-zero-elements -> column index
   // _values: length #non-zero-elements -> actual values
-  std::size_t num_rows = _vec1.size() - 1;
+  std::size_t num_rows = _inner.size() - 1;
   for (std::size_t row_idx = 0; row_idx < num_rows; ++row_idx) {
-    for (std::size_t col_idx = _vec1[row_idx]; col_idx < _vec1[row_idx + 1];
+    for (std::size_t col_idx = _inner[row_idx]; col_idx < _inner[row_idx + 1];
          ++col_idx) {
       // we get the col number and the value accordingly
-      _entry_value_map[std::array<std::size_t, 2>{row_idx, _vec2[col_idx]}] =
+      _entry_value_map[std::array<std::size_t, 2>{row_idx, _outer[col_idx]}] =
           _values[col_idx];
     }
   }
   // save memory and set flags
   _is_compressed = false;
-  _vec1.clear();
-  _vec2.clear();
+  _inner.clear();
+  _outer.clear();
   _values.clear();
 }
 
@@ -87,8 +88,8 @@ template <class T, StorageOrder Store>
 const T Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
                                                        std::size_t col) const {
 
-  for (std::size_t col_idx = _vec1[row]; col_idx < _vec1[row + 1]; ++col_idx) {
-    if (_vec2[col_idx] == col) {
+  for (std::size_t col_idx = _inner[row]; col_idx < _inner[row + 1]; ++col_idx) {
+    if (_outer[col_idx] == col) {
 
       return _values[col_idx];
     }
@@ -110,8 +111,8 @@ template <class T, StorageOrder Store>
 T& Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
                                                   std::size_t col) {
 
-  for (std::size_t col_idx = _vec1[row]; col_idx < _vec1[row + 1]; ++col_idx) {
-    if (_vec2[col_idx] == col) {
+  for (std::size_t col_idx = _inner[row]; col_idx < _inner[row + 1]; ++col_idx) {
+    if (_outer[col_idx] == col) {
 
       return _values[col_idx];
     }
@@ -132,13 +133,13 @@ template <class T, StorageOrder Store>
 std::vector<T> Matrix<T, Store>::_matrix_vector_row(std::vector<T> vec) const {
   // iterate through the rows, then the elements
   std::vector<T> res;
-  res.resize(_vec1.size() - 1, 0);
+  res.resize(_inner.size() - 1, 0);
 
-  for (std::size_t row_idx = 0; row_idx < _vec1.size() - 1; ++row_idx) {
+  for (std::size_t row_idx = 0; row_idx < _inner.size() - 1; ++row_idx) {
     // get the columns, according to this row
-    for (std::size_t col_idx = _vec1[row_idx]; col_idx < _vec1[row_idx + 1];
+    for (std::size_t col_idx = _inner[row_idx]; col_idx < _inner[row_idx + 1];
          ++col_idx) {
-      res[row_idx] += (vec[_vec2[col_idx]] * _values[col_idx]);
+      res[row_idx] += (vec[_outer[col_idx]] * _values[col_idx]);
     }
   }
   return res;
@@ -155,10 +156,10 @@ template <class T, StorageOrder Store>
 T Matrix<T, Store>::_max_norm_compressed_row() const {
 
   T res = 0;
-  for (std::size_t row_idx = 0; row_idx < _vec1.size() - 1; ++row_idx) {
+  for (std::size_t row_idx = 0; row_idx < _inner.size() - 1; ++row_idx) {
     // get the columns, according to this row
     T norm_curr_row = 0;
-    for (std::size_t col_idx = _vec1[row_idx]; col_idx < _vec1[row_idx + 1];
+    for (std::size_t col_idx = _inner[row_idx]; col_idx < _inner[row_idx + 1];
          ++col_idx) {
       norm_curr_row += std::abs(_values[col_idx]);
     }
@@ -177,10 +178,10 @@ T Matrix<T, Store>::_max_norm_compressed_row() const {
 template <class T, StorageOrder Store>
 T Matrix<T, Store>::_one_norm_compressed_row() const {
 
-  std::size_t num_cols = *max_element(std::begin(_vec2), std::end(_vec2));
+  std::size_t num_cols = *max_element(std::begin(_outer), std::end(_outer));
   std::vector<T> sum_abs_per_col(num_cols, 0);
-  for (std::size_t col_idx = 0; col_idx < _vec2.size(); ++col_idx) {
-    sum_abs_per_col[_vec2[col_idx]] += std::abs(_values[col_idx]);
+  for (std::size_t col_idx = 0; col_idx < _outer.size(); ++col_idx) {
+    sum_abs_per_col[_outer[col_idx]] += std::abs(_values[col_idx]);
   }
   return *max_element(std::begin(sum_abs_per_col), std::end(sum_abs_per_col));
 }

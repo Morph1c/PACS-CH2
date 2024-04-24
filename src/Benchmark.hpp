@@ -9,16 +9,18 @@
 #include "Utilities.hpp"
 #include "chrono.hpp"
 
-using namespace algebra;
+namespace algebra{
 
+template <class T, StorageOrder Store = StorageOrder::row>
+class Benchmark{
 // small utility function
-void _print_test_case(StorageOrder Order) {
+void _print_test_case() {
   std::cout << "\n\n===========================\n";
-  std::cout << "Test case for " << Order << "\n";
+  std::cout << "Test case for " << Store << "\n";
 }
 
+public:
 // Test: read a matrix as a matrix-market file and print it.
-template <class T, StorageOrder Store>
 void test_file_reader(const std::string& file_name) {
   try {
     // Example usage to read matrix in Matrix Market format
@@ -39,12 +41,11 @@ void test_file_reader(const std::string& file_name) {
 }
 
 // Test: read the matrix, get and set some values, execute compression
-template <class T, StorageOrder Order>
 void test_basic_operations(const std::string& file_name) {
-  _print_test_case(Order);
+  _print_test_case();
 
-  auto matrix_mapping = read_matrix<T, Order>(file_name);
-  auto matrix = Matrix<T, Order>(matrix_mapping);
+  auto matrix_mapping = read_matrix<T, Store>(file_name);
+  auto matrix = Matrix<T, Store>(matrix_mapping);
 
   std::cout << "Printing the matrix\n";
   std::cout << matrix;
@@ -76,30 +77,28 @@ void test_basic_operations(const std::string& file_name) {
 }
 
 // Test: matrix-vector multiplication for the small case
-template <class T, StorageOrder Order>
 void test_multiplication_correctness(const std::string& file_name) {
-  _print_test_case(Order);
-  auto matrix_mapping = read_matrix<T, Order>(file_name);
-  auto matrix = Matrix<T, Order>(matrix_mapping);
+  _print_test_case();
+  auto matrix_mapping = read_matrix<T, Store>(file_name);
+  auto matrix = Matrix<T, Store>(matrix_mapping);
   std::vector<T> to_multiply = {42, -17, 100, 0, 73, -5, 21, 8, -33, 55};
 
   auto res_uncomp = matrix * to_multiply;
   std::cout << "\nUncompressed Multiplication worked\n";
-  for (auto i : res_uncomp) std::cout << i << ' ';
+  //for (auto i : res_uncomp) std::cout << i << ' ';
   matrix.compress();
   std::cout << matrix << "\n";
   auto res_comp = matrix * to_multiply;
   std::cout << "\nCompressed Multiplication worked\n";
 
-  for (auto i : res_comp) std::cout << i << ' ';
+  //for (auto i : res_comp) std::cout << i << ' ';
 }
 
 // Test: compute all norms
-template <class T, StorageOrder Order>
 void test_norm(const std::string& file_name) {
-  _print_test_case(Order);
-  auto matrix_mapping = read_matrix<T, Order>(file_name);
-  auto matrix = Matrix<T, Order>(matrix_mapping);
+  _print_test_case();
+  auto matrix_mapping = read_matrix<T, Store>(file_name);
+  auto matrix = Matrix<T, Store>(matrix_mapping);
 
   // uncompressed
   auto frob_uncomp = matrix.template norm<NormOrder::frob>();
@@ -122,16 +121,15 @@ void test_norm(const std::string& file_name) {
 
 // Test: Stop the time for a single multiplication, as well as for the
 // compression operations
-template <class T, StorageOrder Order>
 void benchmark_multiplication() {
-  _print_test_case(Order);
+  _print_test_case();
   std::string file_name = "./lnsp_131.mtx";
   Timings::Chrono timer;
   // std::vector<T> to_multiply = _generate_random_vector<T>(131);
 
-  std::cout << Order << "-MAJOR UNCOMPRESSED Multiplication took:\n";
-  auto matrix_mapping = read_matrix<T, Order>(file_name);
-  auto matrix = Matrix<T, Order>(matrix_mapping);
+  std::cout << Store << "-MAJOR UNCOMPRESSED Multiplication took:\n";
+  auto matrix_mapping = read_matrix<T, Store>(file_name);
+  auto matrix = Matrix<T, Store>(matrix_mapping);
 
   std::vector<T> to_multiply = _generate_random_vector<T>(131);
   timer.start();
@@ -139,13 +137,13 @@ void benchmark_multiplication() {
   timer.stop();
   std::cout << timer;
 
-  std::cout << Order << "-MAJOR COMPRESSED Compression took:\n";
+  std::cout << Store << "-MAJOR COMPRESSED Compression took:\n";
   timer.start();
   matrix.compress();
   timer.stop();
   std::cout << timer;
 
-  std::cout << Order << "-MAJOR COMPRESSED Multiplication took:\n";
+  std::cout << Store << "-MAJOR COMPRESSED Multiplication took:\n";
   timer.start();
   auto res_compressed = matrix * to_multiply;
   timer.stop();
@@ -153,15 +151,14 @@ void benchmark_multiplication() {
 }
 
 // Test: large scale benchmark test to average the computation time.
-template <class T, StorageOrder Order>
 void large_benchmark_multiplication(std::size_t num_runs) {
   std::string file_name = "./lnsp_131.mtx";
   Timings::Chrono timer;
-  auto matrix_mapping_raw = read_matrix<T, Order>(file_name);
-  auto matrix_mapping_comp = read_matrix<T, Order>(file_name);
+  auto matrix_mapping_raw = read_matrix<T, Store>(file_name);
+  auto matrix_mapping_comp = read_matrix<T, Store>(file_name);
 
-  auto matrix_raw = Matrix<T, Order>(matrix_mapping_raw);
-  auto matrix_compressed = Matrix<T, Order>(matrix_mapping_comp);
+  auto matrix_raw = Matrix<T, Store>(matrix_mapping_raw);
+  auto matrix_compressed = Matrix<T, Store>(matrix_mapping_comp);
   matrix_compressed.compress();
 
   // save the times
@@ -187,10 +184,14 @@ void large_benchmark_multiplication(std::size_t num_runs) {
   double avg_time_compressed = total_time_compressed / num_runs;
 
   // Report average times
-  std::cout << "Large Benchmark Test for " << Order << "\n";
+  std::cout << "Large Benchmark Test for " << Store << "\n";
   std::cout << "Average time for UNCOMPRESSED Multiplication: " << avg_time_raw
             << " micro-seconds\n";
   std::cout << "Average time for COMPRESSED Multiplication: "
             << avg_time_compressed << " micro-seconds\n";
-}
+  }
+
+}; // class Benchmark
+
+} // namespace algebra
 #endif

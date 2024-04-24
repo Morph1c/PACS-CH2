@@ -31,7 +31,7 @@ public:
       std::array<std::size_t, 2>, T,
       std::conditional_t<Store == StorageOrder::row, RowOrderComparator<T>,
                          ColOrderComparator<T>>>;
-
+  
 private:
   template <NormOrder Norm>
   /**
@@ -120,8 +120,6 @@ private:
   /**
    * @brief Find an element in the uncompressed state, used for the
    * setter/getter methods. Returns the value, if the element is found, else 0.
-   * NOTE: This method does for the sake of performance not check any bounds, it
-   * is up to the user to call it correctly.
    *
    * @param row Row index.
    * @param col Column index.
@@ -138,27 +136,32 @@ private:
   }
 
   /**
-   * @brief Matrix-vector product in the uncompressed state. Not the most
-   * efficient way, it is recommended to operate on compressed matrices.
+   * @brief Matrix-vector product in the uncompressed state. This type of multiplication
+   *  is not the most efficent, maybe better first to compress and then use the compressed multiplication
    *
    * @param vec Vector x to multiply on the right side.
    * @return std::vector<T> Vector y = A*x.
    */
-  std::vector<T> _matrix_vector_uncompressed(std::vector<T> vec) const {
-    std::size_t num_rows = 0;
+  std::vector<T> _uncompressed_mult(std::vector<T> vect) const {
+    std::size_t num_rows, num_cols = 0;
     if constexpr (Store == StorageOrder::row) {
 
       num_rows = _entry_value_map.rbegin()->first[0];
+      num_cols = _entry_value_map.rbegin()->first[1];
     } else {
-      for (const auto& [k, v] : _entry_value_map)
+      for (const auto& [k, v] : _entry_value_map){
         num_rows = std::max(num_rows, k[0]);
-    }
+        num_cols = std::max(num_cols, k[1]);
+      }
 
-    std::vector<T> res(num_rows, 0);
-    // res.resize(num_rows, 0);
+    }
+    
+    //std::cout << "num cols = " << num_cols << "\n";
+    std::vector<T> res(num_rows + 1, 0); // should be +1 since the rows starts from 0
+  
     for (const auto& [k, v] : _entry_value_map) {
 
-      res[k[0]] += (vec[k[1]] * v);
+      res[k[0]] += (vect[k[1]] * v);
     }
     return res;
   }
@@ -180,14 +183,15 @@ private:
   std::vector<T> _matrix_vector_col(std::vector<T>) const;
   T _one_norm_compressed_col() const;
   T _max_norm_compressed_col() const;
+  
 
   // class attributes
   bool _is_compressed;
   matrix_type& _entry_value_map;
 
   // internal representations of the values for the compressed formats
-  std::vector<std::size_t> _vec1;
-  std::vector<std::size_t> _vec2;
+  std::vector<std::size_t> _inner;
+  std::vector<std::size_t> _outer;
   std::vector<T> _values;
 
  public:
@@ -203,8 +207,8 @@ private:
   Matrix(matrix_type& value_map)
       : _is_compressed(false),
         _entry_value_map(value_map),
-        _vec1(),
-        _vec2(),
+        _inner(),
+        _outer(),
         _values(){};
 
   /**
@@ -223,8 +227,8 @@ private:
          std::vector<T> values)
       : _is_compressed(true),
         _entry_value_map(),
-        _vec1(vec1),
-        _vec2(vec2),
+        _inner(vec1),
+        _outer(vec2),
         _values(values){};
 
   /**
@@ -305,13 +309,32 @@ private:
   };
 
   /**
-   * @brief If compressed, print the three vectors individually, if
-   * decompressed, print the indices and the corresponding matrix entries.
+   * @brief Compute the matrix-vector-product.
    *
-   * @param os Outputstream.
-   * @param matrix Matrix.
-   * @return std::ostream& Outputstream, allowing concatination.
+   * @param vec Vector x to multiply from the right-hand side.
+   * @return std::vector<T> Output vector y, i.e. y = Ax.
    */
+  std::vector<T> operator*(std::vector<T> vec) const {
+    if (!_is_compressed) {
+      return _uncompressed_mult(vec);
+    }
+    if constexpr (Store == StorageOrder::row) {
+
+      return _matrix_vector_row(vec);
+    }
+
+    return _matrix_vector_col(vec);
+  };
+
+  
+  /**
+   * @brief Overload the output operator to print the matrix.
+   *
+   * @param os Output stream.
+   * @param matrix Matrix to print.
+   * @return std::ostream& Output stream.
+   */
+
   friend std::ostream& operator<<(std::ostream& os,
                                   const Matrix<T, Store> matrix) {
     if (!matrix.is_compressed()) {
@@ -320,13 +343,13 @@ private:
       }
       return os;
     }
-    os << "Compression format: " << Store << "\n\n";
-    os << "vec1 = \n";
-    for (const auto& el : matrix._vec1) {
+    os << "The compression format: " << Store << "\n\n";
+    os << "inner = \n";
+    for (const auto& el : matrix._inner) {
       os << el << ", ";
     }
-    os << "\nvec2 = \n";
-    for (const auto& el : matrix._vec2) {
+    os << "\nouter = \n";
+    for (const auto& el : matrix._outer) {
       os << el << ", ";
     }
     os << "\nvalues = \n";
@@ -336,25 +359,6 @@ private:
     os << "\n";
     return os;
   }
-
-  /**
-   * @brief Compute the matrix-vector-product.
-   *
-   * @param vec Vector x to multiply from the right-hand side.
-   * @return std::vector<T> Output vector y, i.e. y = Ax.
-   */
-  std::vector<T> operator*(std::vector<T> vec) const {
-    if (!_is_compressed) {
-
-      return _matrix_vector_uncompressed(vec);
-    }
-    if constexpr (Store == StorageOrder::row) {
-
-      return _matrix_vector_row(vec);
-    }
-
-    return _matrix_vector_col(vec);
-  };
 
   /**
    * @brief Compress the matrix into row/column sparse format, i.e switch
@@ -382,13 +386,15 @@ private:
   bool is_compressed() const { return _is_compressed; };
 };
 
+
+
 // ======= ROW MAJOR OPERATIONS =======
 // specialization for row-major, i.e. the default case
 // convert internal mapping to compressed sparse row (CSR) format
 #include "Matrix_row_impl.hpp"
 // ======= COL MAJOR OPERATIONS =======
 #include "Matrix_col_impl.hpp"
-}  // namespace algebra
 
+}  // namespace algebra
 
 #endif

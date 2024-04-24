@@ -3,7 +3,7 @@
 
 #include "Matrix.hpp"
 #include "chrono.hpp"
-#include "test_cases.hpp"
+#include "Benchmark.hpp"
 
 using namespace algebra;
 
@@ -17,28 +17,14 @@ int main(int argc, char* argv[]) {
     // Use the provided filename
     file_name = argv[1];
   }
-  // Test if the filereader works
-  // test_file_reader<type_format, StorageOrder::row>(file_name);
-  // test_file_reader<type_format, StorageOrder::col>(file_name);
-
-  // Test if constructor, compression and call operator work
+  // basic operations test
   // test_basic_operations<type_format, StorageOrder::row>(file_name_small);
-  // test_basic_operations<type_format, StorageOrder::col>(file_name_small);
-
-  // test the norm computation
-  // test_norm<type_format, StorageOrder::row>(file_name);
-  // test_norm<type_format, StorageOrder::col>(file_name);
-
-  // Test if multiplication works
-  // test_multiplication_correctness<type_format, StorageOrder::row>(file_name);
-  // test_multiplication_correctness<type_format, StorageOrder::col>(file_name);
-
-  // Benchmark test for the matrix-vector multiplication
-  // benchmark_multiplication<type_format, StorageOrder::row>();
-  // benchmark_multiplication<type_format, StorageOrder::col>();
+  //test_multiplication_correctness<type_format, StorageOrder::row>(file_name);
 
   // Large benchmark test with lots of runs
-  large_benchmark_multiplication<type_format, StorageOrder::row>(1);
-  large_benchmark_multiplication<type_format, StorageOrder::col>(1);
+  Benchmark<type_format, StorageOrder::row> bench;
+  bench.large_benchmark_multiplication(1);
+  bench.large_benchmark_multiplication(1);
+
   return 0;
 }
