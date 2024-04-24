@@ -314,16 +314,16 @@ private:
    * @param vec Vector x to multiply from the right-hand side.
    * @return std::vector<T> Output vector y, i.e. y = Ax.
    */
-  std::vector<T> operator*(std::vector<T> vec) const {
-    if (!_is_compressed) {
-      return _uncompressed_mult(vec);
+  friend std::vector<T> operator*(const Matrix<T, Store> matrix, std::vector<T> vec){
+    if (!matrix._is_compressed) {
+      return matrix._uncompressed_mult(vec);
     }
     if constexpr (Store == StorageOrder::row) {
 
-      return _matrix_vector_row(vec);
+      return matrix._matrix_vector_row(vec);
     }
 
-    return _matrix_vector_col(vec);
+    return matrix._matrix_vector_col(vec);
   };
 
   

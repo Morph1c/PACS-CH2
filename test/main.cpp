@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
 
   // Large benchmark test with lots of runs
   Benchmark<type_format, StorageOrder::row> bench;
+  bench.test_multiplication_correctness(file_name_small);
   bench.large_benchmark_multiplication(1);
   bench.large_benchmark_multiplication(1);
 
