@@ -47,27 +47,6 @@ matrix and a right-hand side for ``num_runs=1000`` times, compute the average af
 | Speedup  | **3.815** | 2.895 |
 
 
-## Note on the compression algorithm
-Contrastingly to the suggested solution of using ``lower_bound()`` and ``upper_bound()``
-the here presented solution is not using these two commands. Instead, we rely on the ordering
-of the mapping and only use a single loop without conditional jumps. By uncommenting on the
-debugging flags in the comparison operator, one can see that for computing the ``<>_bound()``
-values, internally a linear search is used. Since our map is ordered, we can hide this logic
-directly in the arithmetic by calling
-
-```cpp
-for (const auto& [k, v] : _entry_value_map) {
-_vec2[num_non_zero] = k[0];  // add the column index
-_values[num_non_zero] = v;   // add the value
-// we just update the count of non-zeros at the curr. col-idx
-// note that the col-idx is automatically incremented
-_vec1[k[1] + 1] = ++num_non_zero;
-}
-```
-for the column-compression. Since the mapping is sorted based on ``k[1]`` we ensure
-that the value in ``_vec1`` is always the current number of non-zero elements and
-thus a correct representation.
-
 ## Design Decisions
 To test for maximum speed, I did not implement any bound checks in the getter and
 setter methods.
