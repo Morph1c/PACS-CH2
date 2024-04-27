@@ -50,11 +50,7 @@ read_matrix(const std::string& file_name) {
   std::size_t num_rows, num_cols, num_elements;
 
   file >> num_rows >> num_cols >> num_elements;
-#ifdef DEBUG
-  std::cout << "num_elements: " << num_elements << "\n";
-  std::cout << "num_rows: " << num_rows << "\n";
-  std::cout << "num_cols: " << num_cols << "\n";
-#endif
+
 
   MapType entry_value_map;
 
@@ -63,9 +59,7 @@ read_matrix(const std::string& file_name) {
     T value;
     file >> row >> col >> value;
 
-#ifdef DEBUG
-    std::cout << row << ", " << col << ": " << value << "\n";
-#endif
+
     // we always use the format (row, col) -> value
     // only the comparison operator is different
     entry_value_map[{row - 1, col - 1}] = value;

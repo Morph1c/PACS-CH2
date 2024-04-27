@@ -4,20 +4,15 @@
 #include "Matrix.hpp"
 
 /**
- * @brief Compress a matrix to CSC. NOTE: contrastingly to the suggested
- * implementation this method does not rely on the lower_bound() and
- * upper_bound() methods. Instead, we only use one for-loop and no conditional
- * jumps by exploiting the internal ordering of the dict. The row-counter is
- * always correctly updated since the mapping is ordered based on the rows.
+ * Since we are in col-order first we have element with first col and so on
+ * The first (the inner indexes), of length the number of rows plus one, contains the starting index (in the values array) for the elements of each col
+ * The second vector of indexes (the outer indexes), of length the number of non-zeroes, contains the corresponding row index.
  *
  * @tparam T Type of the entries.
  * @tparam Store Storage order.
  */
 template <class T, StorageOrder Store>
 void Matrix<T, Store>::_compress_col() {
-
-  // NOTE(Assumption): we assume the dict is orderd in (second,first) way
-  // so (1,2) is after (2,1) in the ordering
 
   // vec1 of length #cols + 1 -> col indices
   // vec2 of length #non-zero-elements -> row index
@@ -36,13 +31,25 @@ void Matrix<T, Store>::_compress_col() {
 
   std::size_t num_non_zero = 0;
   // idea: not use conditional jumps
-  for (const auto& [k, v] : _entry_value_map) {
-    _outer[num_non_zero] = k[0];  // add the column index
-    _values[num_non_zero] = v;   // add the value
+  //for (const auto& [k, v] : _entry_value_map) {
+  //  _outer[num_non_zero] = k[0];  // add the column index
+  //  _values[num_non_zero] = v;   // add the value
     // we just update the count of non-zeros at the curr. col-idx
     // note that the col-idx is automatically incremented
-    _inner[k[1] + 1] = ++num_non_zero;
+  //  _inner[k[1] + 1] = ++num_non_zero;
+  //}
+
+  for (std::size_t col = 0; col < num_cols; ++col){
+    auto low = _entry_value_map.lower_bound({std::numeric_limits<std::size_t>::min(), col});
+    auto up = _entry_value_map.upper_bound({std::numeric_limits<std::size_t>::max(), col}); 
+    for (auto it = low; it != up; ++it) {
+      _outer[num_non_zero] = it->first[0];  // add the column index
+      _values[num_non_zero] = it->second;   // add the value
+     ++num_non_zero;
+    }
+    _inner[col + 1] = num_non_zero; // since the next row the non-zero element start from this pos.
   }
+
 
   // save memory and set flags
   _is_compressed = true;

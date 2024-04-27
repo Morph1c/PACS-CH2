@@ -4,13 +4,9 @@
 #include "Matrix.hpp"
 
 /**
- * @brief Helper function to compress a matrix to the CSR-format. NOTE:
- * contrastingly to the suggested implementation this method does not rely on
- * the lower_bound() and upper_bound() methods. Instead, we only use one
- * for-loop and no conditional jumps by exploiting the internal ordering of the
- * dict. The row-counter is always correctly updated since the mapping is
- * ordered based on the rows.
- *
+ *  Since we are in row-order first we have element with first row and so on
+ * The first (the inner indexes), of length the number of rows plus one, contains the starting index (in the values array) for the elements of each row
+ * The second vector of indexes (the outer indexes), of length the number of non-zeroes, contains the corresponding column index.
  * @tparam T Type of the matrix entries.
  * @tparam Store StorageOrder, either row or col.
  */
@@ -32,13 +28,18 @@ void Matrix<T, Store>::_compress_row() {
   _values.resize(num_non_zeros);
 
   std::size_t num_non_zero = 0;
-  // idea: not use conditional jumps
-  for (const auto& [k, v] : _entry_value_map) {
-    _outer[num_non_zero] = k[1];  // add the column index
-    _values[num_non_zero] = v;   // add the value
-    // we just update the count of non-zeros at the curr. row-idx
-    // note that the row-idx is automatically incremented
-    _inner[k[0] + 1] = ++num_non_zero;
+
+  // implement using lower and upper bound
+  for (std::size_t row = 0; row < num_rows - 1; ++row){
+    auto low = _entry_value_map.lower_bound({row, std::numeric_limits<std::size_t>::min()});
+    auto up = _entry_value_map.upper_bound({row, std::numeric_limits<std::size_t>::max()}); 
+
+    for (auto it = low; it != up; ++it) {
+      _outer[num_non_zero] = it->first[1];  // add the column index
+      _values[num_non_zero] = it->second;   // add the value
+     ++num_non_zero;
+    }
+    _inner[row + 1] = num_non_zero; // since the next row the non-zero element start from this pos.
   }
 
   // save memory and set flags
