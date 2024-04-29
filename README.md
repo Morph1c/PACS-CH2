@@ -39,24 +39,25 @@ small test case.**
 matrix and a right-hand side for ``num_runs=1000`` times, compute the average afterwards.
 **Only works with the matrix-market matrix.** The results are the following:
 
+-The provided test are 3 ranging from size and are derived from Fluid flow modeling:
+- ``lns``: simpler case with a 10x10 matrix
+- ``lns_131``: medium complexity case with a 131x131 matrix
+- ``lns_511``: high complexity with a 511x511 matrix
+
+## Medium case
 | | Row major | Col major |
 | ---  | --------- | --- |
-| Uncompressed  | 6.333 \mu s | 8.083 \mu s  |
-| Compressed  | **1.666 \mu s** | 2.792 \mu s  |
+| Uncompressed  | 14.831 \mu s | 8.083 \mu s  |
+| Compressed  | **5.104 \mu s** | 2.792 \mu s  |
 | | | |
-| Speedup  | **3.815** | 2.895 |
+
+## Large case
+| | Row major | Col major |
+| ---  | --------- | --- |
+| Uncompressed  | 42.601 \mu s | 11428.2 \mu s  |
+| Compressed  | **6.218 \mu s** | 13.799 \mu s  |
+| | | |
 
 
-## Design Decisions
-To test for maximum speed, I did not implement any bound checks in the getter and
-setter methods.
-
-## Possible Extensions/Improvements
-- Implement safe getter and setter methods with a bound check.
-- Save the number of rows and columns as a class attribute and update them in the
-modifying methods. This would simplify some function implementations and ensure
-even further speed-ups.
-- Make the large benchmark test more generic.
-- Extension: work with ``mutable``.
 
 

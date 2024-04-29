@@ -27,17 +27,7 @@ void Matrix<T, Store>::_compress_col() {
   _outer.resize(num_non_zeros);
   _values.resize(num_non_zeros);
 
-
-
   std::size_t num_non_zero = 0;
-  // idea: not use conditional jumps
-  //for (const auto& [k, v] : _entry_value_map) {
-  //  _outer[num_non_zero] = k[0];  // add the column index
-  //  _values[num_non_zero] = v;   // add the value
-    // we just update the count of non-zeros at the curr. col-idx
-    // note that the col-idx is automatically incremented
-  //  _inner[k[1] + 1] = ++num_non_zero;
-  //}
 
   for (std::size_t col = 0; col < num_cols; ++col){
     auto low = _entry_value_map.lower_bound({std::numeric_limits<std::size_t>::min(), col});
@@ -49,7 +39,6 @@ void Matrix<T, Store>::_compress_col() {
     }
     _inner[col + 1] = num_non_zero; // since the next row the non-zero element start from this pos.
   }
-
 
   // save memory and set flags
   _is_compressed = true;

@@ -51,24 +51,24 @@ void test_basic_operations(const std::string& file_name) {
   std::cout << matrix;
   // should yield 0 and 4.0
   std::cout << "Calling the setter/getter methods: \n";
-  T val0 = matrix(0, 3);  // not present
-
-  T val4 = matrix(3, 3);  // present
-  std::cout << "val0 = " << val0 << ", val4 = " << val4 << "\n";
+  //T val0 = matrix(0, 3);  // not present
+  //T val0 = 0.0;
+  //T val4 = matrix(3, 3);  // present
+  //std::cout << "val0 = " << val0 << ", val4 = " << val4 << "\n";
 
   // Test compression + call operator
   matrix.compress();
   std::cout << "COMPRESSION WORKED\n";
   std::cout << matrix;
 
-  std::cout << "Calling the setter/getter methods: \n";
-  T val0_comp = matrix(0, 3);  // not present
+  //std::cout << "Calling the setter/getter methods: \n";
+  //T val0_comp = matrix(0, 3);  // not present
   // throws an exception -> works correctly
   // T val11 = 11.0;
   // matrix(0, 4) = val11;
 
-  T val4_comp = matrix(3, 3);  // present
-  std::cout << "val0 = " << val0_comp << ", val4 = " << val4_comp << "\n";
+  //T val4_comp = matrix(3, 3);  // present
+  //std::cout << "val0 = " << val0_comp << ", val4 = " << val4_comp << "\n";
 
   // Test uncompress + call operator
   matrix.uncompress();
@@ -121,9 +121,9 @@ void test_norm(const std::string& file_name) {
 
 // Test: Stop the time for a single multiplication, as well as for the
 // compression operations
-void benchmark_multiplication() {
+void small_benchmark_multiplication() {
   _print_test_case();
-  std::string file_name = "./lnsp_131.mtx";
+  std::string file_name = "./lnsp.mtx";
   Timings::Chrono timer;
   // std::vector<T> to_multiply = _generate_random_vector<T>(131);
 
@@ -151,7 +151,8 @@ void benchmark_multiplication() {
 }
 
 // Test: large scale benchmark test to average the computation time.
-void large_benchmark_multiplication(std::size_t num_runs) {
+// @param num_runs Number of runs to average the time over.
+void medium_benchmark_multiplication(std::size_t num_runs) {
   std::string file_name = "./lnsp_131.mtx";
   Timings::Chrono timer;
   auto matrix_mapping_raw = read_matrix<T, Store>(file_name);
@@ -167,6 +168,48 @@ void large_benchmark_multiplication(std::size_t num_runs) {
 
   for (std::size_t i = 0; i < num_runs; ++i) {
     std::vector<T> to_multiply = _generate_random_vector<T>(131);
+
+    timer.start();
+    auto res_raw = matrix_raw * to_multiply;
+    timer.stop();
+    total_time_raw += timer.wallTime();
+
+    timer.start();
+    auto res_compressed = matrix_compressed * to_multiply;
+    timer.stop();
+    total_time_compressed += timer.wallTime();
+  }
+
+  // Calculate average times
+  double avg_time_raw = total_time_raw / num_runs;
+  double avg_time_compressed = total_time_compressed / num_runs;
+
+  // Report average times
+  std::cout << "Medium Benchmark Test for " << Store << "\n";
+  std::cout << "Average time for UNCOMPRESSED Multiplication: " << avg_time_raw
+            << " micro-seconds\n";
+  std::cout << "Average time for COMPRESSED Multiplication: "
+            << avg_time_compressed << " micro-seconds\n";
+  }
+
+  // Test: large scale benchmark test to average the computation time.
+// @param num_runs Number of runs to average the time over.
+void large_benchmark_multiplication(std::size_t num_runs) {
+  std::string file_name = "./lnsp_511.mtx";
+  Timings::Chrono timer;
+  auto matrix_mapping_raw = read_matrix<T, Store>(file_name);
+  auto matrix_mapping_comp = read_matrix<T, Store>(file_name);
+
+  auto matrix_raw = Matrix<T, Store>(matrix_mapping_raw);
+  auto matrix_compressed = Matrix<T, Store>(matrix_mapping_comp);
+  matrix_compressed.compress();
+
+  // save the times
+  double total_time_raw = 0.0;
+  double total_time_compressed = 0.0;
+
+  for (std::size_t i = 0; i < num_runs; ++i) {
+    std::vector<T> to_multiply = _generate_random_vector<T>(511);
 
     timer.start();
     auto res_raw = matrix_raw * to_multiply;
