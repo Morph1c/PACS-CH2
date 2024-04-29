@@ -34,7 +34,7 @@ It's provided a benchmark template class where you can test:
 - ``-_benchmark_multiplication``: Execute the matrix-vector multiplication between the matrix-market
 matrix and a right-hand side (- stands for three different tests)
 **Only works with the matrix-market matrix.** 
--The provided benchmark_multiplication are three ranging from size and are derived from Fluid flow modeling:
+- ``The provided benchmark_multiplication`` are three ranging from size and are derived from Fluid flow modeling:
 - ``lns``: simpler case with a 10x10 matrix
 - ``lns_131``: medium complexity case with a 131x131 matrix
 - ``lns_511``: high complexity with a 511x511 matrix
