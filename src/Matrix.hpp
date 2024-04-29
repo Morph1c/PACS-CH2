@@ -391,9 +391,9 @@ private:
 // ======= ROW MAJOR OPERATIONS =======
 // specialization for row-major, i.e. the default case
 // convert internal mapping to compressed sparse row (CSR) format
-#include "Matrix_row_impl.hpp"
+#include "row_specilization.hpp"
 // ======= COL MAJOR OPERATIONS =======
-#include "Matrix_col_impl.hpp"
+#include "col_specilization.hpp"
 
 }  // namespace algebra
 
