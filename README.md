@@ -13,14 +13,9 @@ Afterwards you can run the code using the matrix-market file
 ./main
 ```
 
-or using a smaller example.
+or if you want to pass the matrix (in the matrix-market type) via command line
 ```sh
 ./main small_example.mtx
-```
-
-To see debugging information, call
-```sh
-make debug
 ```
 
 ## Provided test cases
