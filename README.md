@@ -1,5 +1,13 @@
+# Sparse Matrix Compression
+Implement a dynamic matrix class template `Matrix<T,StorageOrder>` for dealing with compression algorithm for sparse matrix. In particular we implement this two storaging types:
+- Dynamic (or uncompressed) storage techniques. They allow to add (and some-
+times also eliminate) new non-zero elements easily. In particular we implement a COOmap algorithm.
+- Compressed storage techniques. They are the most efficient in terms of memory
+and of the computational efficiency of basic operations like matrix-vector product. But
+they do not allow to change the pattern of sparsity. We implement CSC and CSR algorithms.
+
 # Getting started
-You can clone the code into your local repo as:
+You need a C++20 compiler, then you can clone the code into your local repo as:
 ```shell
 git clone git@github.com:Morph1c/PACS-CH2.git 
 ```
