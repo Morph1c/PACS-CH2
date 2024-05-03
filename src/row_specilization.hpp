@@ -10,7 +10,7 @@
  * @tparam T Type of the matrix entries.
  * @tparam Store StorageOrder, either row or col.
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 void Matrix<T, Store>::_compress_row() {
 
   // vec1 of length #rows + 1 -> row indices
@@ -53,7 +53,7 @@ void Matrix<T, Store>::_compress_row() {
  * @tparam T Type of the entries.
  * @tparam Store Storage order.
  */
-template <class T, StorageOrder Storage>
+template <Numeric T, StorageOrder Storage>
 void Matrix<T, Storage>::_uncompress_row() {
 
   // vec1 of length #rows + 1 -> row indices
@@ -85,7 +85,7 @@ void Matrix<T, Storage>::_uncompress_row() {
  * @param col Column index.
  * @return const T Value of the element
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 const T Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
                                                        std::size_t col) const {
 
@@ -108,7 +108,7 @@ const T Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
  * @param col Column index.
  * @return &T Reference to the element.
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 T& Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
                                                   std::size_t col) {
 
@@ -130,7 +130,7 @@ T& Matrix<T, Store>::_find_compressed_element_row(std::size_t row,
  * @param vec Vector x to compute A*x.
  * @return std::vector<T> Result of the Matrix-vector multiplication.
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 std::vector<T> Matrix<T, Store>::_matrix_vector_row(std::vector<T> vec) const {
   // iterate through the rows, then the elements
   std::vector<T> res;
@@ -153,7 +153,7 @@ std::vector<T> Matrix<T, Store>::_matrix_vector_row(std::vector<T> vec) const {
  * @tparam Store Storage order.
  * @return T Norm of the matrix.
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 T Matrix<T, Store>::_max_norm_compressed_row() const {
 
   T res = 0;
@@ -176,7 +176,7 @@ T Matrix<T, Store>::_max_norm_compressed_row() const {
  * @tparam Store Storage order.
  * @return T Norm of the matrix.
  */
-template <class T, StorageOrder Store>
+template <Numeric T, StorageOrder Store>
 T Matrix<T, Store>::_one_norm_compressed_row() const {
 
   std::size_t num_cols = *max_element(std::begin(_outer), std::end(_outer));

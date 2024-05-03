@@ -26,12 +26,12 @@ int main(int argc, char* argv[]) {
 
   // basic operations test
   //bench.test_basic_operations(complex_file_name);
-  bench.test_multiplication_correctness(file_name_very_small);
+  //bench.test_multiplication_correctness(file_name_very_small);
   //bench.test_norm(file_name_very_small);
   // Large benchmark test with lots of runs
   //bench.test_multiplication_correctness(file_name_small);
   //bench.medium_benchmark_multiplication(1);
-  //bench.large_benchmark_multiplication(1);
+  bench.large_benchmark_multiplication(1);
 
   return 0;
 }
