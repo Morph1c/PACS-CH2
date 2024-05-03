@@ -1,5 +1,13 @@
+# Sparse Matrix Compression
+Implement a dynamic matrix class template `Matrix<T,StorageOrder>` for dealing with compression algorithm for sparse matrix. In particular we implement this two storaging types:
+- Dynamic (or uncompressed) storage techniques. They allow to add (and some-
+times also eliminate) new non-zero elements easily. In particular we implement a COOmap algorithm.
+- Compressed storage techniques. They are the most efficient in terms of memory
+and of the computational efficiency of basic operations like matrix-vector product. But
+they do not allow to change the pattern of sparsity. We implement CSC and CSR algorithms.
+
 # Getting started
-You can clone the code into your local repo as:
+You need a C++20 compiler, then you can clone the code into your local repo as:
 ```shell
 git clone git@github.com:Morph1c/PACS-CH2.git 
 ```
@@ -13,14 +21,9 @@ Afterwards you can run the code using the matrix-market file
 ./main
 ```
 
-or using a smaller example.
+or if you want to pass the matrix (in the matrix-market type) via command line
 ```sh
 ./main small_example.mtx
-```
-
-To see debugging information, call
-```sh
-make debug
 ```
 
 ## Provided test cases
@@ -53,6 +56,10 @@ matrix and a right-hand side (- stands for three different tests)
 | Compressed  | **6.218 \mu s** | 13.799 \mu s  |
 | | | |
 
-
+## Implementation details
+- We use a concept called `Numeric` so that you can instatiate only float/double values, this very restrictive due to the fact that our test take as input large matrices of float/double and for avoiding possible conversion erro we decide to 
+restrict to this case.
+- We implement compression algorithms for row/col ordering using the built-in method upper/lower bound for accessing to the value list in a specified order
+- We use decision via constexpr for choosings between method for ordering of type row and col
 
 
