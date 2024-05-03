@@ -53,6 +53,9 @@ matrix and a right-hand side (- stands for three different tests)
 | Compressed  | **6.218 \mu s** | 13.799 \mu s  |
 | | | |
 
-
+## Implementation details
+- We use a concept called `Numeric` so that you can instatiate only float/double values, this very restrictive due to the fact that our test take as input large matrices of float/double and for avoiding possible conversion erro we decide to 
+restrict to this case.
+- We implement compression algorithms for row/col ordering using the built-in method upper/lower bound for accessing to the value list in a specified order
 
 
