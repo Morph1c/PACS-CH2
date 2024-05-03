@@ -22,7 +22,8 @@ namespace algebra {
  * @tparam T Type of the entries of the matrix.
  * @tparam Store Storage order of the matrix, either row or column major.
  */
-template <class T, StorageOrder Store = StorageOrder::row>
+
+template <Numeric T, StorageOrder Store = StorageOrder::row>
 class Matrix {
 
 public:
@@ -40,7 +41,7 @@ private:
    *
    * @return T Norm of the matrix.
    */
-  T _norm_uncompressed() const {
+  T _compute_norm_uncompressed() const {
     // ONE NORM
     if constexpr (Norm == NormOrder::one) {
       return _one_norm_uncompressed();
@@ -247,16 +248,17 @@ private:
       else
         return _frob_norm_compressed();
     }
+    // not compressed case
+    if (!_is_compressed) return _compute_norm_uncompressed<Norm>();
 
-    if (!_is_compressed) return _norm_uncompressed<Norm>();
-    // col compression
+    // col compression case
     if constexpr (Store == StorageOrder::col) {
       if constexpr (Norm == NormOrder::one) {
         return _one_norm_compressed_col();
       }
       return _max_norm_compressed_col();
     }
-    // row compression
+    // row compression case
     if constexpr (Norm == NormOrder::one) {
       return _one_norm_compressed_row();
     }
@@ -266,7 +268,7 @@ private:
   /**
    * @brief Non-const getter and setter, in the compressed case only non-zero
    * elements can be changed, else an exception is thrown.
-   *  not check if the row, col are out-of-bound, up to the user t check it correctly
+   * where are not checking if row/col are out of bound
    *
    * @param row Index of the row.
    * @param col Index of the col.
@@ -275,7 +277,7 @@ private:
   T& operator()(std::size_t row, std::size_t col) {
 
     if (!_is_compressed) { // so is the dynamic storage case 
-      std::array<std::size_t, 2> find{row, col};
+      std::array<std::size_t, 2> find = {row, col};
       // either add or override, both is fine
       return _entry_value_map[find];
     }
@@ -343,7 +345,7 @@ private:
       }
       return os;
     }
-    os << "The compression format: " << Store << "\n\n";
+    os << "You are using as compression format(0 = row, 1 = col): " << Store << "\n\n";
     os << "inner = \n";
     for (const auto& el : matrix._inner) {
       os << el << ", ";
@@ -388,11 +390,12 @@ private:
 
 
 
-// ======= ROW MAJOR OPERATIONS =======
+// ROW ORDER METHODS
 // specialization for row-major, i.e. the default case
 // convert internal mapping to compressed sparse row (CSR) format
 #include "row_specilization.hpp"
-// ======= COL MAJOR OPERATIONS =======
+
+// COL ORDER METHODS
 #include "col_specilization.hpp"
 
 }  // namespace algebra

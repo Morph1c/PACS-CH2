@@ -11,12 +11,12 @@
 
 namespace algebra{
 
-template <class T, StorageOrder Store = StorageOrder::row>
+template <Numeric T, StorageOrder Store = StorageOrder::row>
 class Benchmark{
 // small utility function
 void _print_test_case() {
   std::cout << "\n\n===========================\n";
-  std::cout << "Test case for " << Store << "\n";
+  std::cout << "Test case for ordering(0 = row, 1 = col)" << Store << "\n";
 }
 
 public:
@@ -81,17 +81,17 @@ void test_multiplication_correctness(const std::string& file_name) {
   _print_test_case();
   auto matrix_mapping = read_matrix<T, Store>(file_name);
   auto matrix = Matrix<T, Store>(matrix_mapping);
-  std::vector<T> to_multiply = {42, -17, 100, 0, 73, -5, 21, 8, -33, 55};
+  //std::vector<T> to_multiply = {42, -17, 100, 0, 73, -5, 21, 8, -33, 55};
+  std::vector<T> to_multiply = {1,1,1,1,1,1,1,1,1,1};
 
   auto res_uncomp = matrix * to_multiply;
   std::cout << "\nUncompressed Multiplication worked\n";
-  //for (auto i : res_uncomp) std::cout << i << ' ';
+  for (auto i : res_uncomp) std::cout << i << ' ';
   matrix.compress();
   std::cout << matrix << "\n";
   auto res_comp = matrix * to_multiply;
   std::cout << "\nCompressed Multiplication worked\n";
-
-  //for (auto i : res_comp) std::cout << i << ' ';
+  for (auto i : res_comp) std::cout << i << ' ';
 }
 
 // Test: compute all norms
@@ -131,7 +131,8 @@ void small_benchmark_multiplication() {
   auto matrix_mapping = read_matrix<T, Store>(file_name);
   auto matrix = Matrix<T, Store>(matrix_mapping);
 
-  std::vector<T> to_multiply = _generate_random_vector<T>(131);
+  std::vector<T> to_multiply = _generate_random_vector<T>(10);
+
   timer.start();
   auto res_raw = matrix * to_multiply;
   timer.stop();

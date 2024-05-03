@@ -3,21 +3,29 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <concepts>
+#include <type_traits>
+
+
 namespace algebra {
 /**
- * @brief Enum class to define the storage order of the matrix and the type of norm to be computed.
+ * @brief Enum class to define the storage order of the matrix, the type of norm to be computed and a concepts for accepting
+ * only numeric types.
  * 
  */
 enum StorageOrder { row, col };
 
 enum NormOrder { frob, one, max };
 
+template <typename T>
+concept Numeric = std::is_same_v<T, float> || std::is_same_v<T, double>;;
+
 /**
  * @brief Introduce an ordering relation for an arrays of two entries.
  *        This can be only a partial ordering relation
  * @tparam T is the type of the entries of the array
  */
-template <typename T>
+template <Numeric T>
 struct ColOrderComparator {
   bool operator()(const std::array<std::size_t, 2>& x,
                   const std::array<std::size_t, 2>& y) const {
@@ -31,7 +39,7 @@ struct ColOrderComparator {
  * 
  * @tparam T Type of the entries.
  */
-template <typename T>
+template <Numeric T>
 struct RowOrderComparator {
   bool operator()(const std::array<std::size_t, 2>& x,
                   const std::array<std::size_t, 2>& y) const {
@@ -50,7 +58,7 @@ struct RowOrderComparator {
  * @param upper_bound Upper bounds to draw the values from
  * @return std::vector<T> Random vector.
  */
-template <class T>
+template <Numeric T>
 std::vector<T> _generate_random_vector(std::size_t size,
                                        double lower_bound = -10,
                                        double upper_bound = 10) {

@@ -7,6 +7,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <concepts>
 
 #include "Utilities.hpp"
 
@@ -18,27 +19,29 @@ namespace algebra {
  * @tparam T Type of the matrix entries.
  * @tparam Store StorageOrder for the matrix, deciding the ordering of the
  * mapping.
- * @param file_name Path to the matrix-market file.
+ * @param file_path Path to the matrix-market file.
  * @return std::map<std::array<std::size_t, 2>, T,
  * std::conditional_t<Store == StorageOrder::row, RowOrderComparator<T>,
  * ColOrderComparator<T>>> Mapping "(row, col) -> value" which can be directly
  * passed into the constructor.
  */
-template <class T, StorageOrder Store>
+
+
+template <Numeric T, StorageOrder Store>
 std::map<std::array<std::size_t, 2>, T,
          std::conditional_t<Store == StorageOrder::row, RowOrderComparator<T>,
                             ColOrderComparator<T>>>
-read_matrix(const std::string& file_name) {
+read_matrix(const std::string& file_path) {
   // Define the type of the map based on storage order, i.e. use different
   // comparison operators
-  using MapType = std::map<
+  using mapping_type = std::map<
       std::array<std::size_t, 2>, T,
       std::conditional_t<Store == StorageOrder::row, RowOrderComparator<T>,
                          ColOrderComparator<T>>>;
 
-  std::ifstream file(file_name);
+  std::ifstream file(file_path);
   if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file: " + file_name);
+    throw std::runtime_error("Failed to open file: " + file_path);
   }
 
   std::string line;
@@ -52,8 +55,9 @@ read_matrix(const std::string& file_name) {
   file >> num_rows >> num_cols >> num_elements;
 
 
-  MapType entry_value_map;
+  mapping_type entry_value_map;
 
+  // write the entries to the map using the matrix-market format 
   for (std::size_t i = 0; i < num_elements; ++i) {
     std::size_t row, col;
     T value;

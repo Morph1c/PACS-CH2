@@ -29,7 +29,7 @@ void Matrix<T, Store>::_compress_col() {
 
   std::size_t num_non_zero = 0;
 
-  for (std::size_t col = 0; col < num_cols; ++col){
+  for (std::size_t col = 0; col < num_cols - 1; ++col){
     auto low = _entry_value_map.lower_bound({std::numeric_limits<std::size_t>::min(), col});
     auto up = _entry_value_map.upper_bound({std::numeric_limits<std::size_t>::max(), col}); 
     for (auto it = low; it != up; ++it) {
