@@ -59,7 +59,7 @@ The provided benchmark_multiplication inside the  ``Benchmark<T, StoreOrder>`` c
 
 ## Implementation details
 - We use a concept called `Numeric` so that you can instatiate only float/double values, this very restrictive due to the fact that our test take as input large matrices of float/double and for avoiding possible conversion erro we decide to 
-restrict to this case.
+restrict to this case. We know it's very restrictive but can be changed by changing the definition of the concept `Numeric` inside `/src/Utilities.hpp`
 - We implement compression algorithms for row/col ordering using the built-in method upper/lower bound for accessing to the value list in a specified order
 - We use decision via constexpr for choosings between method for ordering of type row and col
 
