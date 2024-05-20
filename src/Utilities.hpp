@@ -1,5 +1,6 @@
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
+// clang-format off
 #include <iostream>
 #include <random>
 #include <vector>
@@ -67,6 +68,9 @@ std::vector<T> _generate_random_vector(std::size_t size,
   std::uniform_real_distribution<T> dis(lower_bound, upper_bound);
 
   std::vector<T> random_vector(size);
+//@note avoid annoying warning due to signed/unsigned comparison:
+// for (int i = 0u; i < size; ++i) {
+// solves the problem
   for (int i = 0; i < size; ++i) {
     random_vector[i] = dis(gen);
   }

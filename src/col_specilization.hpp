@@ -2,7 +2,7 @@
 #ifndef MATRIX_COL_IMPLEMENTATION_HPP
 #define MATRIX_COL_IMPLEMENTATION_HPP
 #include "Matrix.hpp"
-
+// clang-format off
 /**
  * Since we are in col-order first we have element with first col and so on
  * The first (the inner indexes), of length the number of rows plus one, contains the starting index (in the values array) for the elements of each col
@@ -136,6 +136,14 @@ std::vector<T> Matrix<T, Store>::_matrix_vector_col(std::vector<T> vec) const {
   std::size_t num_rows = *max_element(_outer.begin(), _outer.end());
   res.resize(num_rows + 1, 0);
   // iterate through the colums
+
+  //@note two problems here. The warning should have helped you to realize that you are dealing here
+  // with unsigned integers. Therefore, to avoid the warning you should use 0u and not 0. But the main problem is
+  // _inner.size() - 1. If _inner is empty, then _inner.size() is 0u and 0u-1 is the biggest unsigned integer!
+  // Never subtract from an unsiged directly. To be safe you can do:
+  // auto last = inner.size();
+  // last = (last == 0 ? 0 : last - 1u;)
+  // for (int col_idx = 0u; col_idx < last; ++col_idx) {
   for (int col_idx = 0; col_idx < _inner.size() - 1; ++col_idx) {
     for (std::size_t row_idx = _inner[col_idx]; row_idx < _inner[col_idx + 1];
          ++row_idx) {
@@ -157,6 +165,7 @@ T Matrix<T, Store>::_max_norm_compressed_col() const {
 
   std::size_t num_rows = *max_element(std::begin(_outer), std::end(_outer));
   std::vector<T> sum_abs_per_col(num_rows, 0);
+  //@note another warning that can be easily fixed by using 0u.
   for (std::size_t row_idx = 0; row_idx < _outer.size(); ++row_idx) {
     sum_abs_per_col[_outer[row_idx]] += std::abs(_values[row_idx]);
   }

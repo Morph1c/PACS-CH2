@@ -1,6 +1,6 @@
 #ifndef READ_MATRIX_HPP
 #define READ_MATRIX_HPP
-
+// clang-format off
 #include <array>
 #include <fstream>
 #include <iostream>
@@ -45,7 +45,10 @@ read_matrix(const std::string& file_path) {
   }
 
   std::string line;
-
+//@note C++ provides more effective ways of doing this
+// read a line with getline and then analyze the string. 
+// And if you use a stringsteam you can then reqd from the stringstream.
+// Operating on the file stream is ok, but always tricky!
   while (file.peek() == '%') {
     file.ignore(2048, '\n');
   }
